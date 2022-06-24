@@ -1,0 +1,55 @@
+---
+title: "Primeira lista de exercícios - Estatística Aplicada II"
+author: "Ernani de Souza Cubas Neto"
+date: '24/06/2022'
+output: html_document
+---
+
+<style>
+body {
+text-align: justify}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+#### **Com a base de dados "imoveiscwbav" obter os seguintes resultados com o auxílio do "R"**
+
+***
+
+##### Carregando as bibliotecas
+
+```{r, echo=FALSE}
+setwd("D:/Cursos/Pos_IA/Estatistica_aplicada_II/Exercicio1")
+load("imoveiscwbav.RData")
+
+
+library(plyr)
+library(readr)
+library(dplyr)
+library(caret)
+library(ggplot2)
+library(repr)
+library(glmnet)
+```
+
+***
+
+#### Estimar três modelos (Ridge, Lasso e Elasticnet) para explicar a variável Y (price), as demais variáveis da base de dados são todas variáveis explicativas; particione a base de dados em 80% para treino e 20% para teste; e apresente os resultados:
+##### i.	O valor ótimo do lambda para os modelos;
+##### ii.	O valor do alpha para o modelo ElasticNet;
+##### iii.	Os valores dos parâmetros para os modelos;
+##### iv.	O R^2 e RMSE dos modelos estimados;
+##### v.	Apresente os resultados de uma predição proposta por você mesmo para os modelos (valor estimado e intervalos de confiança).
+
+***
+
+##### **Ridge**
+###### Preparação e particionamento
+```{r, echo=FALSE}
+
+```
+
+***
+
