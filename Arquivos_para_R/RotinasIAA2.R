@@ -18,7 +18,7 @@ library(ggplot2)
 library(repr)
 library(glmnet)
 
-load("C:/iaa/wage.RData")
+load("C:/Users/escneto/Documents/Estudos/Pos_IA_UFPR/Estatistica_Aplicada_II/Arquivos_para_R/wage.RData")
 
 dat <- wage
 glimpse(dat)
@@ -59,7 +59,7 @@ cols_reg = c('husage', 'husearns', 'huseduc', 'hushrs',
 dummies <- dummyVars(hrwage ~ husage+husearns+huseduc+hushrs+ 
                      earns+age+educ+husblck+hushisp+kidge6+
                      black+hispanic+union+kidlt6, 
-                     data = dat[,cols_reg])
+                     data = wage[,cols_reg])
 
 train_dummies = predict(dummies, newdata = train[,cols_reg])
 
@@ -67,24 +67,24 @@ test_dummies = predict(dummies, newdata = test[,cols_reg])
 
 print(dim(train_dummies)); print(dim(test_dummies))
 
-# A regress?o Ridge ? uma extens?o da regress?o linear em 
-# que a fun??o de perda ? modificada para minimizar a 
-# complexidade do modelo. Essa modifica??o ? feita 
-# adicionando um par?metro de penalidade equivalente ao 
+# A regressão Ridge é uma extensão da regressão linear em 
+# que a função de perda é modificada para minimizar a 
+# complexidade do modelo. Essa modificação é feita 
+# adicionando um parâmetro de penalidade equivalente ao 
 # quadrado da magnitude dos coeficientes.
 
-# Uma das principais diferen?as entre os modelos de regress?o
-# linear e regularizada ? que o ?ltimo envolve o ajuste de
-# um hiperpar?metro, lambda. O c?digo executa o modelo 
-# glmnet() v?rias vezes para diferentes valores de lambda. 
+# Uma das principais diferenças entre os modelos de regressão
+# linear e regularizada é que o último envolve o ajuste de
+# um hiperparâmetro, lambda. O código executa o modelo 
+# glmnet() várias vezes para diferentes valores de lambda. 
 # Podemos automatizar essa tarefa de encontrar o valor lambda
-# ideal usando a fun??o cv.glmnet(). Isso ? feito usando as
-# linhas de c?digo abaixo.
+# ideal usando a função cv.glmnet(). Isso é feito usando as
+# linhas de código abaixo.
 
-# A fun??o perda ? dada por:
+# A função perda é dada por:
 # Loss function = OLS+lambda*summation(squared coefficient
 # values)
-# Lambda ? o par?metro de penalidade que selecionamos
+# Lambda é o parâmetro de penalidade que selecionamos
 
 # The data for model
 

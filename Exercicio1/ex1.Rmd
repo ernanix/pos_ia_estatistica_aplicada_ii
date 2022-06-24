@@ -11,17 +11,19 @@ text-align: justify}
 </style>
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(
+    echo = FALSE,
+    message = FALSE,
+    warning = FALSE
+)
 ```
 
 #### **Com a base de dados "imoveiscwbav" obter os seguintes resultados com o auxílio do "R"**
 
-***
-
-##### Carregando as bibliotecas
 
 ```{r, echo=FALSE}
-setwd("D:/Cursos/Pos_IA/Estatistica_aplicada_II/Exercicio1")
+setwd("C:/Users/escneto/Documents/Estudos/Pos_IA_UFPR/Estatistica_Aplicada_II/Exercicio1")
+
 load("imoveiscwbav.RData")
 
 
@@ -45,11 +47,364 @@ library(glmnet)
 
 ***
 
-##### **Ridge**
-###### Preparação e particionamento
+##### Particionamento e normalização dos dados
 ```{r, echo=FALSE}
+set.seed(21) 
+
+index = sample(1:nrow(imoveiscwbav), 0.8*nrow(imoveiscwbav)) 
+
+train = imoveiscwbav[index,]
+test = imoveiscwbav[-index,]
+
+print(paste("Quantidade treino:",nrow(train)))
+print(paste("Quantidade teste:",nrow(test)))
+
+cols = c('price','age','parea','tarea','bath','ensuit','garag','plaz','park','trans',
+          'kidca','school','health','bike')
+
+pre_proc_val <- preProcess(train[,cols], method = c("center", "scale"))
+
+train[,cols] = predict(pre_proc_val, train[,cols])
+test[,cols] = predict(pre_proc_val, test[,cols])
+print("Treino:")
+summary(train)
+print("Teste:")
+summary(test)
+```
+
+***
+
+##### Valores que serão usados para predição:
+
+* age: 9
+* parea: 120
+* tarea: 183
+* bath: 3
+* ensuit: 1
+* garag: 2
+* plaz: 0,2067
+* park: 1,884
+* trans: 2,0567
+* kidca: 1,4
+* school: 0,5675
+* health: 0,3579
+* bike: 0,3489
+* barb: 0
+* balc: 0
+* elev: 0
+* fitg: 0
+* party: 1
+* categ: 1
+
+***
+
+##### **Ridge**
+
+***
+
+##### Valor ótimo do lambda para o modelo Ridge
+```{r, echo=FALSE}
+
+cols_reg = c('price','age','parea','tarea','bath','ensuit','garag','plaz','park','trans',
+'kidca','school','health','bike','barb','balc','elev','fitg','party','categ')
+
+dummies <- dummyVars(price ~ age+parea+tarea+bath+ensuit+garag+plaz+park+trans+
+                     kidca+school+health+bike+barb+balc+elev+fitg+party+categ, 
+                     data = imoveiscwbav[,cols_reg])
+
+train_dummies = predict(dummies, newdata = train[,cols_reg])
+test_dummies = predict(dummies, newdata = test[,cols_reg])
+
+
+x = as.matrix(train_dummies)
+y_train = train$price
+
+x_test = as.matrix(test_dummies)
+y_test = test$price
+
+lambdas <- 10^seq(2, -3, by = -.1)
+ridge_lamb <- cv.glmnet(x, y_train, alpha = 0, 
+                      lambda = lambdas)
+best_lambda_ridge <- ridge_lamb$lambda.min
+print(paste("Valor ótimo de lambda:",best_lambda_ridge))
+
+```
+***
+
+##### Valores dos parâmetros para os modelo Ridge
+```{r, echo=FALSE}
+ridge_reg = glmnet(x, y_train, nlambda = 25, alpha = 0, 
+                   family = 'gaussian', 
+                   lambda = best_lambda_ridge)
+
+ridge_reg[["beta"]]
 
 ```
 
 ***
 
+##### O R^2 e RMSE do modelo Ridge
+```{r, echo=FALSE}
+eval_results <- function(true, predicted, df) {
+  SSE <- sum((predicted - true)^2)
+  SST <- sum((true - mean(true))^2)
+  R_square <- 1 - SSE / SST
+  RMSE = sqrt(SSE/nrow(df))
+  
+  # Model performance metrics
+  data.frame(
+    RMSE = RMSE,
+    Rsquare = R_square
+  )
+  
+}
+
+predictions_train <- predict(ridge_reg, s = best_lambda_ridge,
+                             newx = x)
+
+eval_res <- eval_results(y_train, predictions_train, train)
+
+print(paste("Treino: RMSE:",eval_res['RMSE'], "R^2:",eval_res['Rsquare']))
+
+
+predictions_test <- predict(ridge_reg, s = best_lambda_ridge, 
+                            newx = x_test)
+eval_res <- eval_results(y_test, predictions_test, test)
+  
+print(paste("Teste: RMSE:",eval_res['RMSE'], "R^2:",eval_res['Rsquare']))
+
+```
+
+***
+
+##### Resultado da predição para o modelo Ridge
+```{r, echo=FALSE}
+age = (9-pre_proc_val[["mean"]][["age"]])/
+                          pre_proc_val[["std"]][["age"]]
+parea = (120-pre_proc_val[["mean"]][["parea"]])/
+                          pre_proc_val[["std"]][["parea"]]
+tarea = (183-pre_proc_val[["mean"]][["tarea"]])/
+                          pre_proc_val[["std"]][["tarea"]]
+bath = (3-pre_proc_val[["mean"]][["bath"]])/
+                          pre_proc_val[["std"]][["bath"]]
+ensuit = (1-pre_proc_val[["mean"]][["ensuit"]])/
+                          pre_proc_val[["std"]][["ensuit"]]
+garag = (2-pre_proc_val[["mean"]][["garag"]])/
+                          pre_proc_val[["std"]][["garag"]]
+plaz = (0.2067-pre_proc_val[["mean"]][["plaz"]])/
+                          pre_proc_val[["std"]][["plaz"]]
+park = (1.884-pre_proc_val[["mean"]][["park"]])/
+                          pre_proc_val[["std"]][["park"]]
+trans = (2.0567-pre_proc_val[["mean"]][["trans"]])/
+                          pre_proc_val[["std"]][["trans"]]
+kidca = (1.4-pre_proc_val[["mean"]][["kidca"]])/
+                          pre_proc_val[["std"]][["kidca"]]
+school = (0.5675-pre_proc_val[["mean"]][["school"]])/
+                          pre_proc_val[["std"]][["school"]]
+health = (0.3579-pre_proc_val[["mean"]][["health"]])/
+                          pre_proc_val[["std"]][["health"]]
+bike = (0.3489-pre_proc_val[["mean"]][["bike"]])/
+                          pre_proc_val[["std"]][["bike"]]
+barb = 0
+balc = 0
+elev = 0
+fitg = 0
+party = 1
+categ = 1
+
+our_pred = as.matrix(data.frame(age=age, 
+                                parea=parea,
+                                tarea=tarea,
+                                bath=bath,
+                                ensuit=ensuit,
+                                garag=garag,
+                                plaz=plaz,
+                                park=park,
+                                trans=trans,
+                                kidca=kidca,
+                                school=school,
+                                health=health,
+                                bike=bike,
+                                barb=barb,
+                                balc=balc,
+                                elev=elev,
+                                fitg=fitg,
+                                party=party,
+                                categ=categ))
+
+predict_our_ridge <- predict(ridge_reg, s = best_lambda_ridge, 
+                     newx = our_pred)
+
+imoveiscwb_pred_ridge=(predict_our_ridge*
+                   pre_proc_val[["std"]][["price"]])+
+                   pre_proc_val[["mean"]][["price"]]
+
+print(paste("Valor estimado:",imoveiscwb_pred_ridge))
+
+n <- nrow(train)
+m <- imoveiscwb_pred_ridge
+s <- pre_proc_val[["std"]][["price"]]
+dam <- s/sqrt(n)
+CIlwr_ridge <- m + (qnorm(0.025))*dam
+CIupr_ridge <- m - (qnorm(0.025))*dam 
+
+print(paste("Intervalos de confiança:",CIlwr_ridge,"-",CIupr_ridge))
+
+
+```
+
+***
+
+##### **Lasso**
+
+***
+
+##### Valor ótimo do lambda para o modelo Lasso
+```{r, echo=FALSE}
+lambdas <- 10^seq(2, -3, by = -.1)
+
+# Setting alpha = 1 implements lasso regression
+lasso_lamb <- cv.glmnet(x, y_train, alpha = 1, 
+                       lambda = lambdas, 
+                       standardize = TRUE, nfolds = 5)
+
+# Best 
+best_lambda_lasso <- lasso_lamb$lambda.min 
+print(paste("Valor ótimo de lambda:",best_lambda_lasso))
+```
+***
+
+##### Valores dos parâmetros para os modelo Lasso
+```{r, echo=FALSE}
+lasso_model <- glmnet(x, y_train, alpha = 1, 
+                      lambda = best_lambda_lasso, 
+                      standardize = TRUE)
+lasso_model[["beta"]]
+
+```
+
+***
+
+##### O R^2 e RMSE do modelo Lasso
+```{r, echo=FALSE}
+
+predictions_train_lasso <- predict(lasso_model, s = best_lambda_lasso,
+                             newx = x)
+
+
+eval_res <- eval_results(y_train, predictions_train_lasso, train)
+
+print(paste("Treino: RMSE:",eval_res['RMSE'], "R^2:",eval_res['Rsquare']))
+
+predictions_test_lasso <- predict(lasso_model, s = best_lambda_lasso, 
+                            newx = x_test)
+
+eval_res <- eval_results(y_test, predictions_test_lasso, test)
+
+print(paste("Teste: RMSE:",eval_res['RMSE'], "R^2:",eval_res['Rsquare']))
+
+```
+
+***
+
+##### Resultado da predição para o modelo Lasso
+```{r, echo=FALSE}
+predict_our_lasso <- predict(lasso_model, s = best_lambda_lasso, 
+                          newx = our_pred)
+
+imoveiscwb_pred_lasso=(predict_our_lasso*
+                   pre_proc_val[["std"]][["price"]])+
+                   pre_proc_val[["mean"]][["price"]]
+
+print(paste("Valor estimado:",imoveiscwb_pred_lasso))
+
+
+n <- nrow(train)
+m <- imoveiscwb_pred_lasso
+s <- pre_proc_val[["std"]][["price"]]
+dam <- s/sqrt(n)
+CIlwr_lasso <- m + (qnorm(0.025))*dam
+CIupr_lasso <- m - (qnorm(0.025))*dam 
+
+print(paste("Intervalos de confiança:",CIlwr_ridge,"-",CIupr_ridge))
+```
+
+***
+
+##### **ElasticNet**
+
+***
+
+##### Valor ótimo do lambda / valor do alpha para o modelo ElasticNet
+```{r, echo=FALSE, message = FALSE}
+
+train_cont <- trainControl(method = "repeatedcv",
+                           number = 10,
+                           repeats = 5,
+                           search = "random",
+                           verboseIter = TRUE)
+
+elastic_reg <- train(price ~ age+parea+tarea+bath+ 
+                     ensuit+garag+plaz+park+trans+kidca+
+                     school+health+bike+barb+balc+elev+fitg+
+                     party+categ,
+                     data = train,
+                     method = "glmnet",
+                     tuneLength = 10,
+                     trControl = train_cont)
+
+
+elastic_reg$bestTune
+```
+***
+
+##### Valores dos parâmetros para os modelo ElasticNet
+```{r, echo=FALSE}
+elastic_reg[["finalModel"]][["beta"]]
+
+```
+
+***
+
+##### O R^2 e RMSE do modelo ElasticNet
+```{r, echo=FALSE}
+
+predictions_train_elastic <-  predict(elastic_reg, x)
+
+
+eval_res <- eval_results(y_train, predictions_train_elastic, train)
+
+print(paste("Treino: RMSE:",eval_res['RMSE'], "R^2:",eval_res['Rsquare']))
+
+predictions_test_elastic <- predict(elastic_reg, x_test)
+
+eval_res <- eval_results(y_test, predictions_test_elastic, test)
+
+print(paste("Teste: RMSE:",eval_res['RMSE'], "R^2:",eval_res['Rsquare']))
+
+```
+
+***
+
+##### Resultado da predição para o modelo ElasticNet
+```{r, echo=FALSE}
+predict_our_elastic <- predict(elastic_reg,our_pred)
+
+
+imoveiscwb_pred_elastic=(predict_our_elastic*
+                   pre_proc_val[["std"]][["price"]])+
+                   pre_proc_val[["mean"]][["price"]]
+
+print(paste("Valor estimado:",imoveiscwb_pred_elastic))
+
+
+n <- nrow(train)
+m <- imoveiscwb_pred_elastic
+s <- pre_proc_val[["std"]][["price"]]
+dam <- s/sqrt(n)
+CIlwr_elastic <- m + (qnorm(0.025))*dam
+CIupr_elastic <- m - (qnorm(0.025))*dam 
+
+
+print(paste("Intervalos de confiança:",CIlwr_ridge,"-",CIupr_ridge))
+```
