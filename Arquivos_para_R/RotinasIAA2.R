@@ -48,8 +48,8 @@ test[,cols] = predict(pre_proc_val, test[,cols])
 summary(train)
 summary(test)
 
-###### Regress?o Ridge  ###########
-## Regress?o ridge reduz os coeficientes
+###### Regressão Ridge  ###########
+## Regressão ridge reduz os coeficientes
 
 cols_reg = c('husage', 'husearns', 'huseduc', 'hushrs', 
              'earns', 'age', 'educ', 'hrwage','husblck',
@@ -107,7 +107,7 @@ ridge_reg = glmnet(x, y_train, nlambda = 25, alpha = 0,
 
 summary(ridge_reg)
 
-# Obtendo os valores dos par?metros
+# Obtendo os valores dos parâmetros
 
 ridge_reg[["beta"]]
 
@@ -138,9 +138,9 @@ eval_results(y_test, predictions_test, test)
 
 # Prediction for our example
 
-# Como os valores de entrada no modelo est?o normalizados,
-# temos de normalizar tamb?m os dados que queremos prever
-# Observe que as vari?veis dummies n?o sofrem normaliza??o
+# Como os valores de entrada no modelo estão normalizados,
+# temos de normalizar também os dados que queremos prever
+# Observe que as variáveis dummies não sofrem normalização
 
 #Para:
 # husage = 40 anos
@@ -391,7 +391,7 @@ CIupr_elastic
 
 ###################### FIM DA PARTE 1 #######################
 
-################# Testes n?o Param?tricos ###################
+################# Testes não Paramétricos ###################
 
 ###### One-Sample Wilcoxon Signed Rank Test #################
 
@@ -882,7 +882,9 @@ ggboxplot(selfesteem, x="time", y="score", add="point")+
 
 library(ggpubr)
 
-load("C:/iaa/data_rats.Rdata" )
+
+
+load("D:/Cursos/Pos_IA/Estatistica_aplicada_II/Arquivos_para_R/data_rats.Rdata" )
 
 ####Teste preliminar para verificar as suposi??es do teste t
 # de uma amostra
@@ -897,9 +899,9 @@ load("C:/iaa/data_rats.Rdata" )
 
 shapiro.test(data_rats$weight) # => p-value = 0.7846
 
-# A partir do resultado, o p-value ? maior do que o n?vel 
-# de signific?ncia 0.05, o que implica que a distribui??o
-# dos dados n?o ? significativamente diferente da distrib.
+# A partir do resultado, o p-value é maior do que o nível 
+# de significância 0.05, o que implica que a distribuição
+# dos dados não é significativamente diferente da distrib.
 # normal. Em outras palavras, podemos assumir a normalidade.
 
 ### Teste de t para uma amostra para verificar se a m?dia 
@@ -908,8 +910,13 @@ shapiro.test(data_rats$weight) # => p-value = 0.7846
 res <- t.test(data_rats$weight, mu = 25)
 res
 
-# H0: O peso dos ratos ? 25g
-# HA: 0 peso dos ratos ? diferente de 25g
+#t.test(data_rats$weight,y=NULL,"less",mu=25)
+#t.test(data_rats$weight,y=NULL,"greater",mu=25)
+
+qt(0.025,9)
+
+# H0: O peso dos ratos é 25g
+# HA: 0 peso dos ratos é diferente de 25g
 
 # No resultado acima:
 # t ? o valor estat?stico do teste t (t = -13,788),
@@ -927,22 +934,23 @@ res
 
 ############################################################
 # Teste de duas amostras independentes - Unpaired t test  ##
+# Amostras não pareadas - Não tem relação entre elas
+# pareadas: ex. peso de pessoas antes e depois de um treino
 
+load ("D:/Cursos/Pos_IA/Estatistica_aplicada_II/Arquivos_para_R/mw_weight.Rdata")
 
-load ("C:/iaa/mw_weight.Rdata")
-
-# Teste preliminar para verificar as suposi??es do 
+# Teste preliminar para verificar as suposições do 
 # teste t independente
 
-# Premissa 1: as duas amostras s?o independentes?
-# Sim, pois as amostras de homens e mulheres n?o est?o 
+# Premissa 1: as duas amostras são independentes?
+# Sim, pois as amostras de homens e mulheres não estão 
 # relacionadas.
 # Premissa 2: os dados de cada um dos 2 grupos seguem uma
-#             distribui??o normal?
+#             distribuição normal?
 # Use o teste de normalidade Shapiro-Wilk 
-# - Hip?tese nula: os dados s?o normalmente distribu?dos 
-# - Hip?tese alternativa: os dados n?o est?o normalmente
-#                         distribu?dos
+# - Hipótese nula: os dados são normalmente distribuídos 
+# - Hipótese alternativa: os dados não estão normalmente
+#                         distribuídos
 
 # Usaremos shapiro.test() para calcular o teste Shapiro-Wilk
 # para cada grupo de amostras.
@@ -950,82 +958,83 @@ load ("C:/iaa/mw_weight.Rdata")
 # Teste de normalidade Shapiro-Wilk para os pesos masculinos
 
 with(mw_weight, shapiro.test(weight[group == "Man"]))     
-# p-value>0.05 (0.1066), logo a amostra possui distribui??o
+# p-value>0.05 (0.1066), logo a amostra possui distribuição
 # normal
 
 # Teste de normalidade Shapiro-Wilk para os pesos femininos
 
 with(mw_weight, shapiro.test(weight[group == "Woman"]))     
-# p-value>0.05 (0.6101), logo a amostra possui distribui??o
-# normal
+# p-value>0.05 (0.6101), logo a amostra possui distribuição
+# normal - Quanto mais longe de de 0.05, mais normal é
 
-# Pelos resultados dos testes, os dois valores de p s?o 
-# maiores do que o n?vel de signific?ncia 0.05, o que implica
-# que a distribui??o dos dados n?o ? significativamente 
-# diferente da distribui??o normal. Em outras palavras, 
-# podemos assumir que as amostras tem distribui??o normal.
+# Pelos resultados dos testes, os dois valores de p são 
+# maiores do que o nível de significância 0.05, o que implica
+# que a distribuição dos dados não é significativamente 
+# diferente da distribuição normal. Em outras palavras, 
+# podemos assumir que as amostras tem distribuição normal.
 
-# Observe que se os dados n?o forem distribu?dos normalmente,
-# ? recomend?vel usar outro teste de duas amostras n?o 
-# param?trico.
+# Observe que se os dados não forem distribuídos normalmente,
+# é recomendável usar outro teste de duas amostras não 
+# paramétrico.
 
-# Premissa 3. As duas popula??es t?m as mesmas vari?ncias?
+# Premissa 3. As duas populaçõees têm as mesmas variâncias?
 # Usaremos o teste F para testar a homogeneidade nas 
-# vari?ncias. Isso pode ser executado com a fun??o var.test()
+# variâncias. Isso pode ser executado com a função var.test()
 # da seguinte maneira:
 
 res.ftest <- var.test(weight ~ group, data = mw_weight)
 res.ftest
 
-# H0: As vari?ncias s?o iguais 
-# HA: As vari?ncias n?o s?o iguais
+# H0: As variâncias são iguais 
+# HA: As variâncias não são iguais
 
-# O p-value do teste F ? p = 0.1714. ? maior do que o n?vel
-# de signific?ncia alfa = 0.05. Em conclus?o, n?o h? 
-# diferen?a significativa entre as vari?ncias dos dois 
+# O p-value do teste é p = 0.1714. É maior do que o nível
+# de significância alfa = 0.05. Em conclusão, não há 
+# diferença significativa entre as variâncias dos dois 
 # conjuntos de dados. Portanto, podemos usar o teste t 
-# cl?ssico que assume a igualdade das duas vari?ncias.
+# clássico que assume a igualdade das duas variâncias.
 
-# Pergunta: Existe alguma diferen?a significativa entre os 
+# Pergunta: Existe alguma diferença significativa entre os 
 # pesos das mulheres e dos homens?
 
 res <- t.test(weight ~ group, data = mw_weight, 
               var.equal = TRUE)
 res
 
-# H0: O peso dos homens n?o ? diferente estatisticamente do 
+# H0: O peso dos homens não é diferente estatisticamente do 
 #     peso das mulheres
-# HA: O peso dos homens ? diferente estatisticamente do peso
+# HA: O peso dos homens é diferente estatisticamente do peso
 #     das mulheres
 
 # No resultado:
-# t ? o valor estat?stico do teste t (t = 2.784),  df s?o 
-# os graus de liberdade (df = 16),  O p-value ? o n?vel de 
-# signific?ncia do teste t (valor de p = 0.01327). conf.int 
-# ? o intervalo de confian?a da m?dia a 95% 
+# t é o valor estatístico do teste t (t = 2.784),  df são 
+# os graus de liberdade (df = 16),  O p-value é o nível de 
+# significância do teste t (valor de p = 0.01327). conf.int 
+# é o intervalo de confianca da média a 95% 
 # (conf.int = [4.0298 , 29.748]);
-# A estimativa da amostra ? o valor m?dio da amostra 
-# (m?dia = 68.98889, 52.1).
+# A estimativa da amostra é o valor médio da amostra 
+# (média = 68.98889, 52.1).
 
-# O valor de p do teste ? 0.01327, que ? menor que o n?vel 
-# de signific?ncia alfa = 0,05. Pode-se concluir que o peso
-# m?dio dos homens ? significativamente diferente do peso 
-# m?dio das mulheres.
+# O valor de p do teste é 0.01327, que é menor que o nível 
+# de significância alfa = 0,05. Pode-se concluir que o peso
+# médio dos homens é significativamente diferente do peso 
+# médio das mulheres.
 
 
 ############################################################
 ######### Teste de t para amostras emparelhadas ############
 
 
-load ("C:/iaa/paired_weight.Rdata")
+load ("D:/Cursos/Pos_IA/Estatistica_aplicada_II/Arquivos_para_R/paired_weight.Rdata")
 
-# Queremos saber se existe alguma diferen?a significativa nos
-# pesos m?dios dos ratos ap?s o tratamento?
+# Queremos saber se existe alguma diferença significativa nos
+# pesos médios dos ratos após o tratamento?
 
-# Estat?sticas descritivas
+# Estatísticas descritivas
 
 library("dplyr")
 
+# %>% - Pipe (faz o group_by, depois o summarise)
 group_by(paired_weight, group) %>%
   summarise(
     count = n(),
@@ -1033,24 +1042,24 @@ group_by(paired_weight, group) %>%
     sd = sd(weight, na.rm = TRUE)
   )
 
-# Teste preliminar para verificar as suposi??es do teste t
+# Teste preliminar para verificar as suposições do teste t
 # pareado
 
-# Premissa 1: as duas amostras est?o emparelhadas?
+# Premissa 1: as duas amostras estão emparelhadas?
 # Sim, uma vez que os dados foram coletados medindo o peso 
 # dos mesmos ratos.
 
-# Premissa 2: esta ? uma amostra grande?
-# N?o, n<30. Como o tamanho da amostra n?o ? grande o 
+# Premissa 2: esta é uma amostra grande?
+# Não, n<30. Como o tamanho da amostra não é grande o 
 # suficiente (menos de 30), precisamos verificar se as
-# diferen?as dos pares seguem uma distribui??o normal.
+# diferenças dos pares seguem uma distribuição normal.
 # Use o teste de normalidade Shapiro-Wilk
 
-# Hip?tese nula: os dados s?o normalmente distribu?dos
-# Hip?tese alternativa: os dados n?o s?o normalmente 
-#                       distribu?dos
+# Hipótese nula: os dados são normalmente distribuídos
+# Hipótese alternativa: os dados não são normalmente 
+#                       distribuídos
 
-# calcular a diferen?a
+# calcular a diferença
 
 d <- with(paired_weight, 
           weight[group == "before"] - weight[group == "after"])
@@ -1060,69 +1069,70 @@ d
 
 shapiro.test(d)             # => p-value = 0.6141
 
-# no resultado, o p-value ? maior do que o n?vel de 
-# signific?ncia 0.05, o que implica que a distribui??o
-# das diferen?as (d) n?o ? significativamente diferente 
-# da distribui??o normal.
+# no resultado, o p-value é maior do que o nivel de 
+# significância 0.05, o que implica que a distribuição
+# das diferenças (d) não é significativamente diferente 
+# da distribuição normal.
 # Em outras palavras, podemos assumir a normalidade.
 
-# Observe que se os dados n?o forem distribu?dos normalmente,
-# ? recomend?vel usar um teste de duas amostras emparelhadas 
-# n?o param?trico.
+# Observe que se os dados não forem distribuídos normalmente,
+# é recomendável usar um teste de duas amostras emparelhadas 
+# não paramétrico.
 
-# Pergunta: Existe alguma mudan?a significativa no peso dos
-# ratos ap?s o tratamento?
+# Pergunta: Existe alguma mudança significativa no peso dos
+# ratos após o tratamento?
 
 res <- t.test(weight ~ group, data = paired_weight, 
               paired = TRUE)
 res
 
-# H0: O peso dos ratos ? estatisticamente igual
-# HA: O peso dos ratos ? estatisticamente diferente
+# H0: O peso dos ratos é estatisticamente igual
+# HA: O peso dos ratos é estatisticamente diferente
 
 # No resultado:
-# t ? o valor estat?stico do teste t (t = 20.883),
-# df s?o os graus de liberdade (df = 9),
-# O p-value ? o n?vel de signific?ncia do teste t
+# t é o valor estatístico do teste t (t = 20.883),
+# df são os graus de liberdade (df = 9),
+# O p-value é o nível de significância do teste t
 # (p-value = 6.20^{-9}).
-# conf.int ? o intervalo de confian?a das diferen?as das 
-# m?dias com 95%, e tamb?m ? mostrado 
+# conf.int ? o intervalo de confiança das diferenças das 
+# médias com 95%, e também é mostrado 
 # (conf.int = [173,42, 215,56])
-# A estimativa da amostra para as diferen?as das m?dias 
-# entre pares ? (m?dia = 194,49).
+# A estimativa da amostra para as diferenças das médias 
+# entre pares é (média = 194,49).
 
-# O p-value do teste ? 6.2^{-9}, que ? menor que o n?vel 
-# de signific?ncia alfa = 0.05. Podemos ent?o rejeitar a 
-# hip?tese nula e concluir que o peso m?dio dos camundongos
-# antes do tratamento ? significativamente diferente 
-# do peso m?dio ap?s o tratamento.
+# O p-value do teste é 6.2^{-9}, que é menor que o nível 
+# de significância alfa = 0.05. Podemos então rejeitar a 
+# hipótese nula e concluir que o peso médio dos camundongos
+# antes do tratamento é significativamente diferente 
+# do peso médio após o tratamento.
 
 
 ############################################################
 ############# Teste One-way ANOVA ##########################
 
 # Aqui, usaremos o conjunto de dados integrado ao R nominado
-# PlantGrowth. Ele cont?m o peso das plantas obtidas sob 
-# controle e duas condi??es de tratamento diferentes.
+# PlantGrowth. Ele contém o peso das plantas obtidas sob 
+# controle e duas condições de tratamento diferentes.
 
 my_data <- PlantGrowth
 
-# Para ter uma ideia de como s?o os dados, usamos a fun??o 
-# sample_n() [no pacote dplyr]. A fun??o sample_n() escolhe
-# aleatoriamente algumas das observa??es no quadro de dados
+# Para ter uma ideia de como são os dados, usamos a função 
+# sample_n() [no pacote dplyr]. A função sample_n() escolhe
+# aleatoriamente algumas das observações no quadro de dados
 # para imprimir:
 
 set.seed(1234)
+#usar função sample_n do pacote dplyr
 dplyr::sample_n(my_data, 10)
 
-# Na terminologia R, a coluna "group" ? chamada de fator e 
-# as diferentes categorias ("ctr", "trt1", "trt2") s?o 
-# chamadas de n?veis de fator. Os n?veis s?o ordenados
+# Na terminologia R, a coluna "group" é chamada de fator e 
+# as diferentes categorias ("ctr", "trt1", "trt2") são 
+# chamadas de níveis de fator. Os níveis são ordenados
 # alfabeticamente.
 
 levels(my_data$group)
 
-# Calcule algumas estat?sticas por grupo-contagem, m?dia e sd:
+# Calcule algumas estatísticas por grupo-contagem, média e sd:
 
 library(dplyr)
 group_by(my_data, group) %>%
@@ -1132,69 +1142,71 @@ group_by(my_data, group) %>%
     sd = sd(weight, na.rm = TRUE)
   )
 
-### C?lculo do teste ANOVA unilateral ##
+### Cálculo do teste ANOVA unilateral ##
 
-# Queremos saber se existe alguma diferen?a significativa 
-# entre os pesos m?dios das plantas nas 3 condi??es 
+# Queremos saber se existe alguma diferença significativa 
+# entre os pesos médios das plantas nas 3 condições 
 # experimentais.
 
-# A fun??o aov() pode ser usada para responder a esta 
-# pergunta. A fun??o summary.aov() ? usada para resumir o 
-# modelo de an?lise de vari?ncia.
+# A função aov() pode ser usada para responder a esta 
+# pergunta. A função summary.aov() é usada para resumir o 
+# modelo de análise de variância.
 
-# C?lculo da an?lise da vari?ncia
+# Cálculo da análise da variância
 
 res.aov <- aov(weight ~ group, data = my_data)
 
-# Sum?rio estat?stico da an?lise
+# Sumário estatístico da análise
 
 summary(res.aov)
 
-# O resultado inclui as colunas F-value e Pr(>F) 
-# correspondentes ao p-value do teste. Como o p-value ? 
-# menor que o n?vel de signific?ncia 0.05, pode-se 
-# concluir que existem diferen?as significativas entre os
-# grupos, isso ? destacado com "*" no sum?rio do modelo.
+#qf(0.95,2,27)
 
-### Compara??o m?ltipla de pares entre as m?dias dos grupos
+# O resultado inclui as colunas F-value e Pr(>F) 
+# correspondentes ao p-value do teste. Como o p-value é 
+# menor que o nível de significância 0.05, pode-se 
+# concluir que existem diferenças significativas entre os
+# grupos, isso é destacado com "*" no sumário do modelo.
+
+### Comparação múltipla de pares entre as médias dos grupos
 # No teste ANOVA unilateral, um valor p significativo indica 
-# que algumas das m?dias do grupo s?o diferentes, mas n?o 
-# sabemos quais pares de grupos s?o diferentes. ? poss?vel 
-# realizar m?ltiplas compara??es de pares, para determinar 
-# se a diferen?a m?dia entre pares espec?ficos do grupo ? 
+# que algumas das médias do grupo são diferentes, mas não 
+# sabemos quais pares de grupos são diferentes. É possível 
+# realizar múltiplas comparações de pares, para determinar 
+# se a diferença média entre pares específicos do grupo é 
 # estatisticamente significativa.
 
-### Compara??es de pares m?ltiplos de Tukey-um teste post-hoc, 
+### Comparações de pares múltiplos de Tukey-um teste post-hoc, 
 # pode ser usado para mais de 3 grupos
-# Como o teste ANOVA ? significativo, podemos calcular o 
+# Como o teste ANOVA é significativo, podemos calcular o 
 # teste de Tukey HSD (Tukey Honest Significant Differences,
-# fun??o R: TukeyHSD()) 
-# para realizar m?ltiplas compara??es de pares entre as 
-# m?dias dos grupos. A fun??o TukeyHD() usa a ANOVA ajustada 
+# função R: TukeyHSD()) 
+# para realizar m?ltiplas comparações de pares entre as 
+# médias dos grupos. A função TukeyHD() usa a ANOVA ajustada 
 # como argumento.
 
 TukeyHSD(res.aov)
 
-# Par?metros do teste:
-# diff: estat?stica da diferen?a entre m?dias dos dois grupos
+# Parâmetros do teste:
+# diff: estatística da diferença entre médias dos dois grupos
 # lwr, upr: pontos inferior e superior do intervalo de 
-#           confian?a 95%
-# p adj: valor p ap?s o ajuste para as compara??es m?ltiplas.
-# Pode-se ver no resultado, que apenas a diferen?a entre 
-# trt2 e trt1 ? significativa com valor p ajustado de 0.012,
-# ou seja, trt2 e trt1 s?o diferentes.
+#           confiança 95%
+# p adj: valor p após o ajuste para as comparações múltiplas.
+# Pode-se ver no resultado, que apenas a diferença entre 
+# trt2 e trt1 é significativa com valor p ajustado de 0.012,
+# ou seja, trt2 e trt1 são diferentes.
 
-### M?ltiplas compara??es usando pacote multcomp
-# ? poss?vel usar a fun??o glht() [do pacote multcomp] para 
+### Múltiplas comparações usando pacote multcomp
+# É possível usar a função glht() [do pacote multcomp] para 
 # realizar v?rios procedimentos de compara??o para uma ANOVA.
-# "glht" significa testes de hip?teses lineares gerais. 
-# Use glht() para realizar v?rias compara??es de pares para 
+# "glht" significa testes de hipóteses lineares gerais. 
+# Use glht() para realizar várias comparações de pares para 
 # uma ANOVA unilateral:
 
 library(multcomp)
 summary(glht(res.aov, linfct = mcp(group = "Tukey")))
 
-# Novamente foi significativa a diferen?a entre trt2 e trt1
+# Novamente foi significativa a diferença entre trt2 e trt1
 # com p-value = 0.0121
 
 
