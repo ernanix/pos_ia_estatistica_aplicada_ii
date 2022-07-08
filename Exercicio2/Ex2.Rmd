@@ -1,0 +1,172 @@
+---
+title: "Segunda lista de exercícios - Estatística Aplicada II"
+output: html_document
+author: "Ernani de Souza Cubas Neto"
+date: '08/07/2022'
+---
+
+<style>
+body {
+text-align: justify}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = FALSE,
+    message = FALSE,
+    warning = FALSE
+)
+```
+
+#### **Com a base de dados “prodbebidas” (dados mensais do índice de produção de bebidas no Brasil) obter os seguintes resultados com o auxílio do “R”**
+
+#### **Fazer a todos os testes estatísticos e gráficos necessários e a predição para os próximos 6 meses do índice de produção de bebidas para os seguintes modelos:**
+
+> #### 1. ETS;
+> #### 2. ARIMA OU SARIMA (verificar se existe sazonalidade ou não e decidir qual modelo é mais adequado);
+
+##### *Obs: separe os últimos 12 meses da série para testar o modelo.*
+
+***
+
+##### Carregando pacotes e base *prodbebidas*:
+```{r, echo=FALSE}
+#Carregando os pacotes
+pacotes <- c("readxl","plotly","tidyverse","gridExtra",
+             "forecast","TTR","smooth","tidyverse", 
+             "tsibble", "fable","tsibbledata", "fpp3",
+             "urca")
+
+if(sum(as.numeric(!pacotes %in% installed.packages())) != 0){
+  instalador <- pacotes[!pacotes %in% installed.packages()]
+  for(i in 1:length(instalador)) {
+    install.packages(instalador, dependencies = T)
+    break()}
+  sapply(pacotes, require, character = T)
+} else {
+  sapply(pacotes, require, character = T)
+}
+
+#Carregando a base
+
+prodbebidas <- read_excel("C:/Users/escneto/Documents/Estudos/Pos_IA_UFPR/Estatistica_Aplicada_II/Exercicio2/prodbebidas.xls")
+
+prodbebidas_ts <- ts(data = prodbebidas[, 2],
+             start = c(2002, 1),
+             end = c(2022, 4),
+             frequency = 12)
+
+library(anytime)
+prodbebidas$Data <- anydate(prodbebidas$Data)
+
+
+```
+
+***
+
+##### Plotagem da série temporal:
+```{r, echo=FALSE}
+# Plotagem da série temporal
+prodbebidas %>%
+  ggplot() +
+  geom_line(aes(x = Data, y = Prodbebidas, group = TRUE, 
+                color = "prodbebidas"), size = 1) +
+  scale_color_viridis_d() +
+  scale_y_continuous(labels = scales::comma) +
+  scale_x_date(date_labels = "%m-%Y", 
+               date_breaks = "1 year") +
+  theme(axis.text.x = element_text(angle = 90,
+                                   vjust = 0.4),
+        panel.background = element_rect(fill = "white",
+                                        color = "black"),
+        panel.grid = element_line(color = "grey90"),
+        panel.border = element_rect(color = "black",
+                                    fill = NA),
+        legend.position = "none")
+```
+
+***
+
+##### Decomposição da base pelo modelo aditivo e plotagem:
+```{r, echo=FALSE}
+decprodbebidas <- decompose(x = prodbebidas_ts,
+                    type = "additive")
+
+# Transformando o objeto decpib num data frame
+decprodbebidas_df <- data.frame(tempo = prodbebidas$Data,
+                  serie = unlist(decprodbebidas$x),
+                  tendencia = unlist(decprodbebidas$trend),
+                  sazonalidade = unlist(decprodbebidas$seasonal),
+                  dessazonalizada = prodbebidas_ts - decprodbebidas$seasonal,
+                  erro = unlist(decprodbebidas$random)) %>%
+  rename(tempo = 1,
+         serie = 2,
+         tendencia = 3,
+         sazonalidade = 4,
+         dessazonalizada = 5,
+         erro = 6)
+```
+
+```{r, echo=FALSE}
+decprodbebidas_df %>%
+  ggplot() +
+  geom_line(aes(x = tempo, y = serie, 
+                color = "Série"), size = 1.2) +
+  geom_line(aes(x = tempo, y = tendencia, 
+                color = "Tendência"), size = 1) +
+  geom_line(aes(x = tempo, y = sazonalidade, 
+                color = "Sazonalidade"), size = 1.2) +
+  geom_line(aes(x = tempo, y = erro, 
+                color = "Erro"), size = 1) +
+  scale_x_date(date_labels = "%m-%Y", 
+               date_breaks = "1 year") +
+  scale_y_continuous(labels = scales::comma) +
+  labs(color = "Legenda:",
+       x = NULL,
+       y = NULL) +
+  scale_color_manual(values = c("#440154FF", "#3CBB75FF",
+                                "#39568CFF", "#DCE319FF")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.4),
+        panel.background = element_rect(fill = "white", 
+                                        color = "black"),
+        panel.grid = element_line(color = "grey90"),
+        panel.border = element_rect(color = "black", fill = NA),
+        legend.position = "bottom")
+```
+
+***
+
+##### Plotando a série dessazonalizada :
+```{r, echo=FALSE}
+# ==> Série
+decprodbebidas_df %>%
+  ggplot() +
+  geom_line(aes(x = tempo, y = serie, color = "Série"),
+            size = 1.2) +
+  geom_line(aes(x = tempo, y = dessazonalizada, 
+                color = "Dessazonalizada"), size = 1) +
+  scale_x_date(date_labels = "%m-%Y", 
+               date_breaks = "1 year") +
+  scale_y_continuous(labels = scales::comma) +
+  labs(color = "Legenda:",
+       x = NULL,
+       y = NULL) +
+  scale_color_viridis_d() +
+  theme(axis.text.x = element_text(angle = 90, 
+                                   vjust = 0.4),
+        panel.background = element_rect(fill = "white",
+                                        color = "black"),
+        panel.grid = element_line(color = "grey90"),
+        panel.border = element_rect(color = "black",
+                                    fill = NA),
+        legend.position = "bottom")
+```
+
+***
+
+##### Decomposição da base pelo modelo multiplicativo e plotagem:
+```{r, echo=FALSE}
+decprodbebidasM = decompose(prodbebidas_ts, type = "multiplicative")
+plot(decprodbebidasM)
+
+```
