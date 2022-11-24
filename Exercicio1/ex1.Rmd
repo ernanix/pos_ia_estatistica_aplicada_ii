@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 
 ```{r, echo=FALSE}
-setwd("C:/Users/escneto/Documents/Estudos/Pos_IA_UFPR/Estatistica_Aplicada_II/Exercicio1")
+setwd("/Users/MPPR/Documents/Pos_IA/pos_ia_estatistica_aplicada_ii/Exercicio1")
 
 load("imoveiscwbav.RData")
 
